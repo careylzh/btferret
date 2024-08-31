@@ -193,7 +193,8 @@ int main()
   set_le_wait(20000);  // Allow 20 seconds for connection to complete
                                          
   le_pair(localnode(),JUST_WORKS,0);  // Easiest option, but if client requires
-                                      // passkey security - remove this command  
+           
+  user_function(4,0,0,0,NULL,NULL); //assign any non-zero int, doesn't affect assigned clientnode value                                      // passkey security - remove this command  
   le_server(lecallback,0);
   
   close_all();
@@ -209,16 +210,16 @@ int lecallback(int clientnode,int op,int cticn)
   if(op == LE_CONNECT)
     {
     printf("Connected OK. Key presses sent to client. ESC stops server\n");
-    printf("F10 sends Hello plus Enter\n");
+    user_function(clientnode,0,0,0,NULL,NULL);
+    printf("assigned clientnode for device 1: %d\n", clientnode); 
     }
   if(op == LE_KEYPRESS)
     {  // cticn = ASCII code of key OR btferret custom code
     if(cticn == 23)
       {    // 23 = btferret custom code for F10
-           // Send "Hello" plus Enter
-      for(n = 0 ; hello[n] != 0 ; ++n)
-        send_key(hello[n]);
-        
+      //trigger device switch
+      printf("F10 pressed. Triggering device switch to clientnode 1000...\n");
+      user_function(1000,0,0,0,NULL,NULL); //assign any non-zero int, doesn't affect assigned clientnode value  
       /**** battery level ****/
       //  if(battery[0] > 0)
       //    --battery[0];

@@ -5203,12 +5203,13 @@ int writecticx(int node,int cticn,unsigned char *data,int count,int notflag,int 
   
     flag = 0;  
     for(devn = 1 ; cp->notify != 0 && devok(devn) != 0 ; ++devn)
-      {  // search all other devices for notify
-      dp = dev[devn];
-      if((dp->conflag & CON_LX) != 0 && 
-         (gpar.btleflag == 0 || gpar.btlenode == 0 || gpar.btlenode == dp->node))
+        {  // search all other devices for notify          
+          dp = dev[devn];
+          if((dp->conflag & CON_LX) != 0 &&
+            (user_function(0,1,0,0,NULL,NULL) == 0 || dp->node == user_function(0,1,0,0,NULL,NULL)) &&
+            (gpar.btleflag == 0 || gpar.btlenode == 0 || gpar.btlenode == dp->node))
         {  // device devn is connected as LE client
-           // send notification
+        // send notification   
         if(flag == 0)
           {  // first loop only
           flag = 1;
@@ -6585,7 +6586,7 @@ int readhci(int ndevice,long long int mustflag,long long int lookflag,int timout
             {  // check for existing connection
             for(k = 1 ; multiflag == 0 && devok(k) != 0 ; ++k)
               {
-              if(dev[k]->conflag == CON_LX)
+              if(dev[k]->conflag == CON_LX && user_function(0,1,0,0,NULL,NULL) == 0)
                 multiflag = 1;                
               } 
             }
@@ -6660,8 +6661,9 @@ int readhci(int ndevice,long long int mustflag,long long int lookflag,int timout
             }
           }
           
-        if((gpar.hidflag & 1) == 0 && (gpar.meshflag & MESH_W) != 0)
-          mesh_on();
+        if(((gpar.hidflag & 1) == 0 && (gpar.meshflag & MESH_W) != 0) ||
+          user_function(0,1,0,0,NULL,NULL) != 0)
+          mesh_on();     
         }  // end IN_LEHAND
       else if(gotflag == IN_CONREQ)
         {
@@ -14403,10 +14405,10 @@ int setupcrypt(int flag)
 
 int user_function(int n0,int n1,int n2,int n3,unsigned char *dat0,unsigned char *dat1)
   {
+  static int activenode = 0;
   
-  // your code here
-  // For Python - recompile the module via 
-  //     python3 btfpy.py build   
-
-  return(0);
-  }
+  if(n1 == 0)
+    activenode = n0;
+    
+  return(activenode);
+  }       
